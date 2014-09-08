@@ -42,12 +42,11 @@ public:
 	CString m_connectmac;
 	int m_macquantity;
 	CString m_phy;
-	afx_msg void OnTimer(UINT_PTR nIDEvent);
+//	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	CString m_encryption;
 	CString m_connectencryption;
 	CString m_tixing;
 	BOOL m_disconnect;
-	afx_msg void OnBnClickedButton3();
 	CTreeCtrl m_mistrustssid;
 	afx_msg void OnBnClickedButton5();
 	CString m_unssid;
@@ -55,4 +54,6 @@ public:
 	CString m_unmac;
 
 	afx_msg void OnBnClickedButton6();
+	CString path;
+	afx_msg void OnGetMinMaxInfo(MINMAXINFO* lpMMI);
 };
