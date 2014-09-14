@@ -3,6 +3,7 @@
 //
 
 #pragma once
+#include "afxcmn.h"
 
 
 // CwlanDlg ¶Ô»°¿ò
@@ -42,18 +43,13 @@ public:
 	CString m_connectmac;
 	int m_macquantity;
 	CString m_phy;
-//	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	CString m_encryption;
 	CString m_connectencryption;
 	CString m_tixing;
-	BOOL m_disconnect;
-	CTreeCtrl m_mistrustssid;
-	afx_msg void OnBnClickedButton5();
-	CString m_unssid;
-	CTreeCtrl m_mistrustmac;
-	CString m_unmac;
 
-	afx_msg void OnBnClickedButton6();
+
 	CString path;
 	afx_msg void OnGetMinMaxInfo(MINMAXINFO* lpMMI);
+//	CTreeCtrl m_HistoryInformation;
+	CTreeCtrl m_HistoryInformation;
 };

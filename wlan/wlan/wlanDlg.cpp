@@ -55,7 +55,7 @@ END_MESSAGE_MAP()
 CwlanDlg::CwlanDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CwlanDlg::IDD, pParent)
 {
-	
+
 	char *temp;
 	size_t len;
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -68,8 +68,6 @@ CwlanDlg::CwlanDlg(CWnd* pParent /*=NULL*/)
 	m_encryption = _T("");
 	m_connectencryption = _T("");
 	m_tixing = _T("");
-	m_unssid = _T("");
-	m_unmac = _T("");
 	errno_t err = _dupenv_s(&temp, &len, "APPDATA");
 	if (err) exit(-1);
 	path = temp;
@@ -91,13 +89,7 @@ void CwlanDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT6, m_phy);
 	DDX_Text(pDX, IDC_EDIT7, m_encryption);
 	DDX_Text(pDX, IDC_EDIT8, m_connectencryption);
-	DDX_Text(pDX, IDC_EDIT11, m_tixing);
-	DDX_Check(pDX, IDC_CHECK1, m_disconnect);
-	DDX_Control(pDX, IDC_TREE2, m_mistrustssid);
-	DDX_Text(pDX, IDC_EDIT9, m_unssid);
-	DDX_Control(pDX, IDC_TREE3, m_mistrustmac);
-	DDX_Text(pDX, IDC_EDIT10, m_unmac);
-	DDV_MaxChars(pDX, m_unmac, 17);
+	DDX_Control(pDX, IDC_TREE2, m_HistoryInformation);
 }
 
 BEGIN_MESSAGE_MAP(CwlanDlg, CDialogEx)
@@ -107,8 +99,6 @@ BEGIN_MESSAGE_MAP(CwlanDlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_BUTTON1, &CwlanDlg::OnBnClickedButton1)
 	ON_BN_CLICKED(IDC_BUTTON2, &CwlanDlg::OnBnClickedButton2)
-	ON_BN_CLICKED(IDC_BUTTON5, &CwlanDlg::OnBnClickedButton5)
-	ON_BN_CLICKED(IDC_BUTTON6, &CwlanDlg::OnBnClickedButton6)
 	ON_WM_GETMINMAXINFO()
 END_MESSAGE_MAP()
 
@@ -260,7 +250,7 @@ void CwlanDlg::wifiquantity()
 			case wlan_interface_state_connected:
 				m_State = "Connected";
 				m_connectedssid = pConnectInfo[0].strProfileName;
-				m_connectmac.Format("%x:%x:%x:%x:%x:%x", pConnectInfo[0].wlanAssociationAttributes.dot11Bssid[0], pConnectInfo[0].wlanAssociationAttributes.dot11Bssid[1], pConnectInfo[0].wlanAssociationAttributes.dot11Bssid[2], pConnectInfo[0].wlanAssociationAttributes.dot11Bssid[3], pConnectInfo[0].wlanAssociationAttributes.dot11Bssid[4], pConnectInfo[0].wlanAssociationAttributes.dot11Bssid[5]);
+				m_connectmac.Format("%.2X:%.2X:%.2X:%.2X:%.2X:%.2X", pConnectInfo[0].wlanAssociationAttributes.dot11Bssid[0], pConnectInfo[0].wlanAssociationAttributes.dot11Bssid[1], pConnectInfo[0].wlanAssociationAttributes.dot11Bssid[2], pConnectInfo[0].wlanAssociationAttributes.dot11Bssid[3], pConnectInfo[0].wlanAssociationAttributes.dot11Bssid[4], pConnectInfo[0].wlanAssociationAttributes.dot11Bssid[5]);
 
 				break;
 			case wlan_interface_state_ad_hoc_network_formed:
@@ -487,70 +477,20 @@ void CwlanDlg::wifiquantity()
 			{
 
 				CString temp1 = "";
-				temp1.Format("%x:%x:%x:%x:%x:%x", pWlanBssList[0].wlanBssEntries[j].dot11Bssid[0], pWlanBssList[0].wlanBssEntries[j].dot11Bssid[1], pWlanBssList[0].wlanBssEntries[j].dot11Bssid[2], pWlanBssList[0].wlanBssEntries[j].dot11Bssid[3], pWlanBssList[0].wlanBssEntries[j].dot11Bssid[4], pWlanBssList[0].wlanBssEntries[j].dot11Bssid[5]);
+				temp1.Format("%.2X:%.2X:%.2X:%.2X:%.2X:%.2X", pWlanBssList[0].wlanBssEntries[j].dot11Bssid[0], pWlanBssList[0].wlanBssEntries[j].dot11Bssid[1], pWlanBssList[0].wlanBssEntries[j].dot11Bssid[2], pWlanBssList[0].wlanBssEntries[j].dot11Bssid[3], pWlanBssList[0].wlanBssEntries[j].dot11Bssid[4], pWlanBssList[0].wlanBssEntries[j].dot11Bssid[5]);
 
 				hItem = m_display.InsertItem(temp1, hSubItem);
 			}
 		}
 	}
-	if (m_connectedssid != ""){
-		hItem = NULL;
-		hItem = m_mistrustmac.GetRootItem();
 
-		temp = m_mistrustmac.GetItemText(hItem);
-
-		if (temp == m_connectmac)
-		{
-			CwlanDlg::disconnected();
-			m_tixing = "根据不信任的MAC地址，已断开与不信任的接入点的连接";
-			MessageBox(m_tixing);
-		}
-		while (hItem)
-		{
-			hItem = m_mistrustmac.GetNextSiblingItem(hItem);
-			temp = m_mistrustmac.GetItemText(hItem);
-
-			if (m_connectmac == temp)
-			{
-				CwlanDlg::disconnected();
-				m_tixing = "根据不信任的MAC地址，已断开与不信任的接入点的连接";
-				MessageBox(m_tixing);
-			}
-		}
-		hItem = m_mistrustssid.GetRootItem();
-
-		temp = m_mistrustssid.GetItemText(hItem);
-
-		if (temp == m_connectedssid)
-		{
-			CwlanDlg::disconnected();
-			m_tixing = "根据不信任的SSID，已断开与不信任的接入点的连接";
-			MessageBox(m_tixing);
-		}
-		while (hItem)
-		{
-			hItem = m_mistrustssid.GetNextSiblingItem(hItem);
-			temp = m_mistrustssid.GetItemText(hItem);
-
-			if (m_connectedssid == temp)
-			{
-				CwlanDlg::disconnected();
-				m_tixing = "根据不信任的SSID，已断开与不信任的接入点的连接";
-				MessageBox(m_tixing);
-			}
-		}
-	}
 
 	WlanFreeMemory(pConnectInfo);
 	WlanFreeMemory(pInterfaceList);
 	WlanFreeMemory(pWLAN_AVAILABLE_NETWORK_LIST);
 	WlanFreeMemory(pWlanBssList);
 
-	if (disconnect == 1 && m_disconnect == 1)
-	{
-		CwlanDlg::disconnected();
-		MessageBox("该接入点不安全，已断开");
-	}
+
 	WlanCloseHandle(hClientHandle, NULL);
 	UpdateData(FALSE);
 
@@ -593,7 +533,7 @@ void CwlanDlg::load()
 {
 	UpdateData(TRUE);
 	int i = _access_s(path, 0);
-	if (i==0){
+	if (i == 0){
 		CFile file(path + "\\ssid.dat", CFile::modeReadWrite);
 		CFile mfile(path + "\\mac.dat", CFile::modeReadWrite);
 		char pbuf[999];
@@ -602,14 +542,14 @@ void CwlanDlg::load()
 		int i = 0;
 		HTREEITEM hItem;
 		CString temp = "";
-		hItem = m_mistrustssid.GetRootItem();
+		hItem = m_HistoryInformation.GetRootItem();
 		while (pbuf[i])
 		{
 			if (pbuf[i] != 59){
 				temp += pbuf[i];
 			}
 			else if (temp != ""){
-				hItem = m_mistrustssid.InsertItem(temp, TVI_ROOT);
+				hItem = m_HistoryInformation.InsertItem(temp, TVI_ROOT);
 				temp = "";
 			}
 			i++;
@@ -618,7 +558,7 @@ void CwlanDlg::load()
 		memset(pbuf, 0, sizeof(pbuf));
 		mfile.Read(pbuf, 999);
 		i = 0;
-		hItem = m_mistrustmac.GetRootItem();
+		hItem = m_HistoryInformation.GetRootItem();
 		while (pbuf[i])
 		{
 			if (pbuf[i] != 59){
@@ -627,7 +567,7 @@ void CwlanDlg::load()
 			else if (temp != "")
 			{
 
-				hItem = m_mistrustmac.InsertItem(temp, TVI_ROOT);
+				hItem = m_HistoryInformation.InsertItem(temp, TVI_ROOT);
 				temp = "";
 			}
 			i++;
@@ -639,219 +579,10 @@ void CwlanDlg::load()
 
 
 
-void CwlanDlg::OnBnClickedButton5()
-{
-	UpdateData(TRUE);
-	CString temp;
-	
-	HTREEITEM hItem, htemp;
-	// TODO: 在此添加控件通知处理程序代码
-	if (m_unssid != ""){
-		htemp = m_mistrustssid.GetRootItem();
-		bool flag = 1;
-		temp = m_mistrustssid.GetItemText(htemp);
-
-		if (m_unssid == temp)
-		{
-			m_unssid = "";
-			flag = 0;
-		}
-		while (htemp)
-		{
-			htemp = m_mistrustssid.GetNextSiblingItem(htemp);
-			temp = m_mistrustssid.GetItemText(htemp);
-
-			if (m_unssid == temp)
-			{
-				m_unssid = "";
-				flag = 0;
-			}
-		}
-		if (flag == 1)
-		{
-			hItem = m_mistrustssid.InsertItem(m_unssid, TVI_ROOT);
-		}
-
-		m_unssid = "";
-
-	}
-	if (m_unmac != ""){
-		bool flag = 1;
-		int i = m_unmac.GetLength();
-		if (i != 17)
-		{
-			flag = 0;
-			MessageBox("输入的MAC地址不对");
-		}
-		htemp = m_mistrustmac.GetRootItem();
-
-		temp = m_mistrustmac.GetItemText(htemp);
-
-		if (m_unmac == temp)
-		{
-
-			flag = 0;
-		}
-		while (htemp)
-		{
-			htemp = m_mistrustmac.GetNextSiblingItem(htemp);
-			temp = m_mistrustmac.GetItemText(htemp);
-
-			if (m_unmac == temp)
-			{
-
-				flag = 0;
-			}
-		}
-		if (flag == 1)
-		{
-			hItem = m_mistrustmac.InsertItem(m_unmac, TVI_ROOT);
-		}
-
-	}
-	hItem = NULL;
-	htemp = NULL;
-	_mkdir(path);
-	DeleteFile(path + "\\ssid.dat");
-	CFile file(path + "\\ssid.dat", CFile::modeCreate | CFile::modeReadWrite);
-	htemp = m_mistrustssid.GetRootItem();
-	temp = m_mistrustssid.GetItemText(htemp);
-	int i = temp.GetLength();
-	file.Write(temp + ";", i + 1);
-	while (htemp)
-	{
-		htemp = m_mistrustssid.GetNextSiblingItem(htemp);
-		temp = m_mistrustssid.GetItemText(htemp);
-		i = temp.GetLength();
-		if (i == 0)break;
-		file.Write(temp + ";", i + 1);
-
-	}
-
-	DeleteFile(path + "\\mac.dat");
-	CFile mfile(path + "\\mac.dat", CFile::modeCreate | CFile::modeReadWrite);
-	htemp = m_mistrustmac.GetRootItem();
-	temp = m_mistrustmac.GetItemText(htemp);
-	i = temp.GetLength();
-
-	mfile.Write(temp + ";", i + 1);
-	while (htemp)
-	{
-		htemp = m_mistrustmac.GetNextSiblingItem(htemp);
-		temp = m_mistrustmac.GetItemText(htemp);
-		i = temp.GetLength();
-		if (i == 0)break;
-		mfile.Write(temp + ";", i + 1);
-	}
-	UpdateData(FALSE);
-}
-
-
-
-
-void CwlanDlg::OnBnClickedButton6()
-{
-	UpdateData(TRUE);
-	CString temp;
-	HTREEITEM hItem;
-	// TODO: 在此添加控件通知处理程序代码
-	if (m_unssid != ""){
-		hItem = m_mistrustssid.GetRootItem();
-
-		temp = m_mistrustssid.GetItemText(hItem);
-
-		if (m_unssid == temp)
-		{
-
-			m_mistrustssid.DeleteItem(hItem);
-
-		}
-		while (hItem)
-		{
-			hItem = m_mistrustssid.GetNextSiblingItem(hItem);
-			temp = m_mistrustssid.GetItemText(hItem);
-
-			if (m_unssid == temp)
-			{
-
-				m_mistrustssid.DeleteItem(hItem);
-			}
-		}
-
-
-		m_unssid = "";
-		hItem = NULL;
-	}
-	if (m_unmac != ""){
-
-		int i = m_unmac.GetLength();
-		if (i != 17)
-		{
-
-			MessageBox("输入的MAC地址不对");
-		}
-		hItem = m_mistrustmac.GetRootItem();
-
-		temp = m_mistrustmac.GetItemText(hItem);
-
-		if (m_unmac == temp)
-		{
-			m_mistrustmac.DeleteItem(hItem);
-
-		}
-		while (hItem)
-		{
-			hItem = m_mistrustmac.GetNextSiblingItem(hItem);
-			temp = m_mistrustmac.GetItemText(hItem);
-
-			if (m_unmac == temp)
-			{
-				m_mistrustmac.DeleteItem(hItem);
-
-			}
-		}
-	}
-	hItem = NULL;
-	DeleteFile(path + "\\ssid.dat");
-	CFile file(path + "\\ssid.dat", CFile::modeCreate | CFile::modeReadWrite);
-	hItem = m_mistrustssid.GetRootItem();
-	temp = m_mistrustssid.GetItemText(hItem);
-	int i = temp.GetLength();
-	file.Write(temp + ";", i + 1);
-	while (hItem)
-	{
-		hItem = m_mistrustssid.GetNextSiblingItem(hItem);
-		temp = m_mistrustssid.GetItemText(hItem);
-		i = temp.GetLength();
-		if (i == 0)break;
-		file.Write(temp + ";", i + 1);
-
-	}
-
-	DeleteFile(path+"\\mac.dat");
-	CFile mfile(path + "\\mac.dat", CFile::modeCreate | CFile::modeReadWrite);
-	hItem = m_mistrustmac.GetRootItem();
-	temp = m_mistrustmac.GetItemText(hItem);
-	i = temp.GetLength();
-
-	mfile.Write(temp + ";", i + 1);
-	while (hItem)
-	{
-		hItem = m_mistrustmac.GetNextSiblingItem(hItem);
-		temp = m_mistrustmac.GetItemText(hItem);
-		i = temp.GetLength();
-		if (i == 0)break;
-		mfile.Write(temp + ";", i + 1);
-	}
-	UpdateData(FALSE);
-
-}
-
-
 void CwlanDlg::OnGetMinMaxInfo(MINMAXINFO* lpMMI)
 {
 	// TODO:  在此添加消息处理程序代码和/或调用默认值
-	lpMMI->ptMinTrackSize.x = 700;      
-	lpMMI->ptMinTrackSize.y = 400;  
+	lpMMI->ptMinTrackSize.x = 700;
+	lpMMI->ptMinTrackSize.y = 400;
 	CDialogEx::OnGetMinMaxInfo(lpMMI);
 }
