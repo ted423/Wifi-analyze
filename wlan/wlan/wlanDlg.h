@@ -48,7 +48,8 @@ public:
 	CString m_tixing;
 
 
-	CString path;
+	CString Cpath;
+	char path[100];
 	afx_msg void OnGetMinMaxInfo(MINMAXINFO* lpMMI);
 //	CTreeCtrl m_HistoryInformation;
 	CTreeCtrl m_HistoryInformation;

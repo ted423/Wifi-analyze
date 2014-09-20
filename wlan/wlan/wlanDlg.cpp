@@ -70,8 +70,8 @@ CwlanDlg::CwlanDlg(CWnd* pParent /*=NULL*/)
 	m_tixing = _T("");
 	errno_t err = _dupenv_s(&temp, &len, "APPDATA");
 	if (err) exit(-1);
-	path = temp;
-	path += "\\Wifi-analyze";
+	Cpath = temp;
+	Cpath += "\\Wifi-analyze";
 	free(temp);
 }
 
@@ -250,7 +250,7 @@ void CwlanDlg::wifiquantity()
 			case wlan_interface_state_connected:
 				m_State = "Connected";
 				m_connectedssid = pConnectInfo[0].strProfileName;
-				m_connectmac.Format("%.2X:%.2X:%.2X:%.2X:%.2X:%.2X", pConnectInfo[0].wlanAssociationAttributes.dot11Bssid[0], pConnectInfo[0].wlanAssociationAttributes.dot11Bssid[1], pConnectInfo[0].wlanAssociationAttributes.dot11Bssid[2], pConnectInfo[0].wlanAssociationAttributes.dot11Bssid[3], pConnectInfo[0].wlanAssociationAttributes.dot11Bssid[4], pConnectInfo[0].wlanAssociationAttributes.dot11Bssid[5]);
+				m_connectmac.Format(_T("%.2X:%.2X:%.2X:%.2X:%.2X:%.2X"), pConnectInfo[0].wlanAssociationAttributes.dot11Bssid[0], pConnectInfo[0].wlanAssociationAttributes.dot11Bssid[1], pConnectInfo[0].wlanAssociationAttributes.dot11Bssid[2], pConnectInfo[0].wlanAssociationAttributes.dot11Bssid[3], pConnectInfo[0].wlanAssociationAttributes.dot11Bssid[4], pConnectInfo[0].wlanAssociationAttributes.dot11Bssid[5]);
 
 				break;
 			case wlan_interface_state_ad_hoc_network_formed:
@@ -272,7 +272,7 @@ void CwlanDlg::wifiquantity()
 				m_State = "In process of authenticating";
 				break;
 			default:
-				m_State.Format("Unknown state %ld", pInterfaceList[0].InterfaceInfo[0].isState);
+				m_State.Format(_T("Unknown state %ld"), pInterfaceList[0].InterfaceInfo[0].isState);
 				break;
 			}
 		}
@@ -281,9 +281,6 @@ void CwlanDlg::wifiquantity()
 		switch (pConnectInfo[0].wlanSecurityAttributes.dot11CipherAlgorithm){
 		case  DOT11_CIPHER_ALGO_NONE:
 			m_encryption = "未加密";
-			m_tixing = "";
-			m_tixing = "连接接入点" + m_connectedssid + "未加密，该接入点存在钓鱼隐患";
-			disconnect = 1;
 			break;
 		case DOT11_CIPHER_ALGO_WEP40:
 			m_encryption = "WEP40";
@@ -304,7 +301,7 @@ void CwlanDlg::wifiquantity()
 			m_encryption = "WEP";
 			break;
 		default:
-			m_encryption.Format("Other (%lu)", pConnectInfo[0].wlanSecurityAttributes.dot11CipherAlgorithm);
+			m_encryption.Format(_T("Other (%lu)"), pConnectInfo[0].wlanSecurityAttributes.dot11CipherAlgorithm);
 			break;
 		}
 		switch (pConnectInfo[0].wlanSecurityAttributes.dot11AuthAlgorithm){
@@ -330,7 +327,7 @@ void CwlanDlg::wifiquantity()
 			m_connectencryption = "WPA2_PSK";
 			break;
 		default:
-			m_connectencryption.Format("Other (%lu)", pConnectInfo[0].wlanSecurityAttributes.dot11AuthAlgorithm);
+			m_connectencryption.Format(_T("Other (%lu)"), pConnectInfo[0].wlanSecurityAttributes.dot11AuthAlgorithm);
 			break;
 		}
 		switch (pConnectInfo[0].wlanAssociationAttributes.dot11PhyType){
@@ -400,32 +397,32 @@ void CwlanDlg::wifiquantity()
 		temp.Format(temp + "（-%d）", a);
 		if (pWLAN_AVAILABLE_NETWORK_LIST[0].Network[i].bSecurityEnabled == 0)
 		{
-			temp = "[未加密]" + temp;
+			temp = _T("[未加密]" + temp);
 		}
 		if (pWLAN_AVAILABLE_NETWORK_LIST[0].Network[i].bSecurityEnabled == 1)
 		{
 			switch (pWLAN_AVAILABLE_NETWORK_LIST[0].Network[i].dot11DefaultAuthAlgorithm) {
 
 			case DOT11_AUTH_ALGO_80211_SHARED_KEY:
-				temp = "[SHARED_KEY]" + temp;
+				temp = _T("[SHARED_KEY]" + temp);
 				break;
 			case DOT11_AUTH_ALGO_WPA:
-				temp = "[WPA]" + temp;
+				temp = _T("[WPA]" + temp);
 				break;
 			case DOT11_AUTH_ALGO_WPA_PSK:
-				temp = "[WPA_PSK]" + temp;
+				temp = _T("[WPA_PSK]" + temp);
 				break;
 			case DOT11_AUTH_ALGO_WPA_NONE:
-				temp = "[WPA_NONE]" + temp;
+				temp = _T("[WPA_NONE]" + temp);
 				break;
 			case DOT11_AUTH_ALGO_RSNA:
-				temp = "[WPA2]" + temp;
+				temp = _T("[WPA2]" + temp);
 				break;
 			case DOT11_AUTH_ALGO_RSNA_PSK:
-				temp = "[WPA2_PSK]" + temp;
+				temp = _T("[WPA2_PSK]" + temp);
 				break;
 			default:
-				temp.Format("[Other (%lu)]" + temp, pWLAN_AVAILABLE_NETWORK_LIST[0].Network[i].dot11DefaultAuthAlgorithm);
+				temp.Format(_T("[Other (%lu)]" + temp), pWLAN_AVAILABLE_NETWORK_LIST[0].Network[i].dot11DefaultAuthAlgorithm);
 				break;
 			}
 
@@ -466,18 +463,18 @@ void CwlanDlg::wifiquantity()
 
 		a = pWLAN_AVAILABLE_NETWORK_LIST[0].Network[i].uNumberOfBssids;
 
-		temp.Format("BSSID数量：%d", a);
+		temp.Format(_T("BSSID数量：%d"), a);
 		hSubItem = m_display.InsertItem(temp, hItem);
 		for (unsigned int j = 0, k = 0; j < pWlanBssList[0].dwNumberOfItems; j++)
 		{
-			CString compare1 = "", compare2 = "";
+			CString compare1, compare2;
 			compare1 = pWlanBssList[0].wlanBssEntries[j].dot11Ssid.ucSSID;
 			compare2 = pWLAN_AVAILABLE_NETWORK_LIST[0].Network[i].dot11Ssid.ucSSID;
 			if (compare1 == compare2)
 			{
 
-				CString temp1 = "";
-				temp1.Format("%.2X:%.2X:%.2X:%.2X:%.2X:%.2X", pWlanBssList[0].wlanBssEntries[j].dot11Bssid[0], pWlanBssList[0].wlanBssEntries[j].dot11Bssid[1], pWlanBssList[0].wlanBssEntries[j].dot11Bssid[2], pWlanBssList[0].wlanBssEntries[j].dot11Bssid[3], pWlanBssList[0].wlanBssEntries[j].dot11Bssid[4], pWlanBssList[0].wlanBssEntries[j].dot11Bssid[5]);
+				CString temp1;
+				temp1.Format(_T("%.2X:%.2X:%.2X:%.2X:%.2X:%.2X"), pWlanBssList[0].wlanBssEntries[j].dot11Bssid[0], pWlanBssList[0].wlanBssEntries[j].dot11Bssid[1], pWlanBssList[0].wlanBssEntries[j].dot11Bssid[2], pWlanBssList[0].wlanBssEntries[j].dot11Bssid[3], pWlanBssList[0].wlanBssEntries[j].dot11Bssid[4], pWlanBssList[0].wlanBssEntries[j].dot11Bssid[5]);
 
 				hItem = m_display.InsertItem(temp1, hSubItem);
 			}
@@ -532,16 +529,17 @@ void CwlanDlg::OnBnClickedButton2()
 void CwlanDlg::load()
 {
 	UpdateData(TRUE);
-	int i = _access_s(path, 0);
+
+	int i = _access_s((char *)(LPCTSTR)Cpath, 0);
 	if (i == 0){
-		CFile file(path + "\\ssid.dat", CFile::modeReadWrite);
-		CFile mfile(path + "\\mac.dat", CFile::modeReadWrite);
+		CFile file(Cpath + "\\ssid.dat", CFile::modeReadWrite);
+		CFile mfile(Cpath + "\\mac.dat", CFile::modeReadWrite);
 		char pbuf[999];
 		memset(pbuf, 0, sizeof(pbuf));
 		file.Read(pbuf, 999);
 		int i = 0;
 		HTREEITEM hItem;
-		CString temp = "";
+		CString temp;
 		hItem = m_HistoryInformation.GetRootItem();
 		while (pbuf[i])
 		{
