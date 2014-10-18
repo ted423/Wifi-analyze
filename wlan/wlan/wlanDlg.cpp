@@ -68,11 +68,7 @@ CwlanDlg::CwlanDlg(CWnd* pParent /*=NULL*/)
 	m_encryption = _T("");
 	m_connectencryption = _T("");
 	m_tixing = _T("");
-	errno_t err = _dupenv_s(&temp, &len, "APPDATA");
-	if (err) exit(-1);
-	Cpath = temp;
-	Cpath += "\\Wifi-analyze";
-	free(temp);
+	
 }
 
 void CwlanDlg::DoDataExchange(CDataExchange* pDX)
@@ -89,7 +85,6 @@ void CwlanDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT6, m_phy);
 	DDX_Text(pDX, IDC_EDIT7, m_encryption);
 	DDX_Text(pDX, IDC_EDIT8, m_connectencryption);
-	DDX_Control(pDX, IDC_TREE2, m_HistoryInformation);
 }
 
 BEGIN_MESSAGE_MAP(CwlanDlg, CDialogEx)
@@ -137,7 +132,6 @@ BOOL CwlanDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
-	CwlanDlg::load();
 	CwlanDlg::wifiquantity();
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 
@@ -517,7 +511,6 @@ void CwlanDlg::disconnected()
 void CwlanDlg::OnBnClickedButton1()
 {
 	CwlanDlg::wifiquantity();
-	SetTimer(1, 5000, NULL);
 }
 
 
@@ -526,61 +519,16 @@ void CwlanDlg::OnBnClickedButton2()
 	CwlanDlg::disconnected();
 }
 
-void CwlanDlg::load()
-{
-	UpdateData(TRUE);
 
-	int i = _access_s((char *)(LPCTSTR)Cpath, 0);
-	if (i == 0){
-		CFile file(Cpath + "\\ssid.dat", CFile::modeReadWrite);
-		CFile mfile(Cpath + "\\mac.dat", CFile::modeReadWrite);
-		char pbuf[999];
-		memset(pbuf, 0, sizeof(pbuf));
-		file.Read(pbuf, 999);
-		int i = 0;
-		HTREEITEM hItem;
-		CString temp;
-		hItem = m_HistoryInformation.GetRootItem();
-		while (pbuf[i])
-		{
-			if (pbuf[i] != 59){
-				temp += pbuf[i];
-			}
-			else if (temp != ""){
-				hItem = m_HistoryInformation.InsertItem(temp, TVI_ROOT);
-				temp = "";
-			}
-			i++;
-
-		}
-		memset(pbuf, 0, sizeof(pbuf));
-		mfile.Read(pbuf, 999);
-		i = 0;
-		hItem = m_HistoryInformation.GetRootItem();
-		while (pbuf[i])
-		{
-			if (pbuf[i] != 59){
-				temp += pbuf[i];
-			}
-			else if (temp != "")
-			{
-
-				hItem = m_HistoryInformation.InsertItem(temp, TVI_ROOT);
-				temp = "";
-			}
-			i++;
-
-		}
-	}
-	UpdateData(false);
-}
 
 
 
 void CwlanDlg::OnGetMinMaxInfo(MINMAXINFO* lpMMI)
 {
 	// TODO:  在此添加消息处理程序代码和/或调用默认值
-	lpMMI->ptMinTrackSize.x = 700;
-	lpMMI->ptMinTrackSize.y = 400;
+	lpMMI->ptMinTrackSize.x = 590;
+	lpMMI->ptMaxTrackSize.x = 590;
+	lpMMI->ptMaxTrackSize.y = 370;
+	lpMMI->ptMinTrackSize.y = 370;
 	CDialogEx::OnGetMinMaxInfo(lpMMI);
 }
